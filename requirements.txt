@@ -1,5 +1,4 @@
 django
 python-decouple
-python-telegram-bot
 requests 
 aiogram

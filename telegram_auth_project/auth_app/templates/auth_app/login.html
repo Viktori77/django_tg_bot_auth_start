@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Войти</title>
+  </head>
+  <body>
+    {% if user.is_authenticated %}
+    <h1>Добро пожаловать, {{ user.username }}!</h1>
+    <a href="{% url 'logout' %}">Выйти</a>
+    {% else %}
+    <h1>Войти</h1>
+    <a
+      href="{% url 'start_telegram_auth' %}"
+      target="_blank"
+      >Войти через Telegram</a
+    >
+    <script>
+      function checkAuth() {
+        fetch("{% url 'check_auth' %}", {
+          credentials: "include",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.is_authenticated) {
+              localStorage.setItem("username", data.username) // Сохраняем username в localStorage
+              window.location.reload() // Перезагружаем страницу
+            }
+          })
+          .catch((error) => {
+            console.error("Error checking authentication:", error)
+          })
+      }
+
+      function checkLocalStorage() {
+        const username = localStorage.getItem("username")
+        if (username) {
+          document.querySelector(
+            "h1"
+          ).innerText = `Добро пожаловать, ${username}!`
+          document.querySelector("a").innerText = "Выйти"
+          document.querySelector("a").href = "#"
+          document.querySelector("a").onclick = logout
+        } else {
+          checkAuth()
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("username")
+        window.location.href = "{% url 'logout' %}"
+      }
+
+      // Проверяем localStorage при загрузке страницы
+      window.onload = function () {
+        checkLocalStorage()
+      }
+
+      // Проверяем localStorage каждые 20 секунд
+      setInterval(checkLocalStorage, 20000)
+    </script>
+    {% endif %}
+  </body>
+</html>
